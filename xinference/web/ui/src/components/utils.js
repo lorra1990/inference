@@ -4,7 +4,10 @@ const getEndpoint = () => {
     endPoint = 'http://127.0.0.1:9997'
   } else {
     const fullUrl = window.location.href
-    endPoint = fullUrl.split('/ui')[0]
+    /**
+     * 去除url末尾的/
+     */
+    endPoint = fullUrl.split('/ui')[0].replace(/\/+$/, '')
   }
   return endPoint
 }
