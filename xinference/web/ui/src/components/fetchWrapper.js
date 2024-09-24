@@ -8,7 +8,10 @@ const getBaseUrl = () => {
     base_URL = 'http://127.0.0.1:9997'
   } else {
     const fullUrl = window.location.href
-    base_URL = fullUrl.split('/ui')[0]
+    /**
+     * 去除url末尾的/
+     */
+    base_URL = fullUrl.split('/ui')[0].replace(/\/+$/, '')
   }
   return base_URL
 }
