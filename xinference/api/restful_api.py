@@ -224,6 +224,11 @@ class RESTfulAPI:
         self._router = APIRouter()
         self._app = FastAPI()
 
+        # hack gradio
+        from .utils import get_root_url
+
+        gr.routes.route_utils.get_root_url = get_root_url
+
     def is_authenticated(self):
         return False if self._auth_service.config is None else True
 
