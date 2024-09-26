@@ -750,6 +750,17 @@ class RESTfulAPI:
             ),
         )
 
+        self._router.add_api_route(
+            "/v1/router",
+            self.get_route,
+            methods=["GET"],
+            dependencies=(
+                [Security(self._auth_service, scopes=["admin"])]
+                if self.is_authenticated()
+                else None
+            ),
+        )
+
         if XINFERENCE_DISABLE_METRICS:
             logger.info(
                 "Supervisor metrics is disabled due to the environment XINFERENCE_DISABLE_METRICS=1"
@@ -2150,6 +2161,23 @@ class RESTfulAPI:
         try:
             res = await (await self._get_supervisor_ref()).abort_cluster()
             os.kill(os.getpid(), signal.SIGINT)
+            return JSONResponse(content={"result": res})
+        except ValueError as re:
+            logger.error(re, exc_info=True)
+            raise HTTPException(status_code=400, detail=str(re))
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def get_route(self, route_str=Query("")) -> JSONResponse:
+        try:
+            res = False
+            logger.info(f"{self._app.routes}")
+            for route in self._app.routes:
+                if route.path == route_str:
+                    res = True
+                    break
+
             return JSONResponse(content={"result": res})
         except ValueError as re:
             logger.error(re, exc_info=True)
