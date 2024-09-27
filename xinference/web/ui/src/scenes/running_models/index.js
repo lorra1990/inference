@@ -176,7 +176,7 @@ const RunningModels = () => {
         const openUrl = `${endPoint}/` + url
         const closeUrl = `${endPoint}/v1/models/` + url
         const gradioUrl = `${endPoint}/v1/ui/` + url
-        const checkUrl = `${endPoint}/v1/router?route_str=/`+url
+        const checkUrl = `${endPoint}/v1/router?route_str=/` + url
 
         if (url === 'IS_LOADING') {
           return <div></div>
@@ -210,7 +210,7 @@ const RunningModels = () => {
                   method: 'GET',
                   headers: {
                     'Content-Type': 'application/json',
-                  }
+                  },
                 })
                   .then((res) => {
                     res.json().then((data) => {
@@ -236,7 +236,11 @@ const RunningModels = () => {
                         })
                           .then((response) => response.json())
                           .then(() =>
-                            window.open(openUrl, '_blank', 'noopener noreferrer')
+                            window.open(
+                              openUrl,
+                              '_blank',
+                              'noopener noreferrer'
+                            )
                           )
                           .finally(() => setIsCallingApi(false))
                       } else if (data.result === true) {
@@ -463,7 +467,7 @@ const RunningModels = () => {
         const openUrl = `${endPoint}/` + url
         const closeUrl = `${endPoint}/v1/models/` + url
         const gradioUrl = `${endPoint}/v1/ui/images/` + url
-        const checkUrl = `${endPoint}/v1/router?route_str=/`+url
+        const checkUrl = `${endPoint}/v1/router?route_str=/` + url
 
         if (url === 'IS_LOADING') {
           return <div></div>
@@ -498,47 +502,51 @@ const RunningModels = () => {
                   method: 'GET',
                   headers: {
                     'Content-Type': 'application/json',
-                  }
+                  },
                 })
                   .then((res) => {
                     res.json().then((data) => {
                       if (data.result === false) {
-                      // If web UI doesn't exist (404 Not Found)
-                      console.log('UI does not exist, creating new...')
-                      return fetcher(gradioUrl, {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          model_type: row.model_type,
-                          model_family: row.model_family,
-                          model_id: row.id,
-                          controlnet: row.controlnet,
-                          model_revision: row.model_revision,
-                          model_name: row.model_name,
-                          model_ability: row.model_ability,
-                        }),
-                      })
-                        .then((response) => response.json())
-                        .then(() =>
-                          window.open(openUrl, '_blank', 'noopener noreferrer')
+                        // If web UI doesn't exist (404 Not Found)
+                        console.log('UI does not exist, creating new...')
+                        return fetcher(gradioUrl, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            model_type: row.model_type,
+                            model_family: row.model_family,
+                            model_id: row.id,
+                            controlnet: row.controlnet,
+                            model_revision: row.model_revision,
+                            model_name: row.model_name,
+                            model_ability: row.model_ability,
+                          }),
+                        })
+                          .then((response) => response.json())
+                          .then(() =>
+                            window.open(
+                              openUrl,
+                              '_blank',
+                              'noopener noreferrer'
+                            )
+                          )
+                          .finally(() => setIsCallingApi(false))
+                      } else if (data.result === true) {
+                        // If web UI does exist
+                        console.log('UI exists, opening...')
+                        window.open(openUrl, '_blank', 'noopener noreferrer')
+                        setIsCallingApi(false)
+                      } else {
+                        // Other HTTP errors
+                        console.error(
+                          `Unexpected response status: ${res.status}`
                         )
-                        .finally(() => setIsCallingApi(false))
-                    } else if (data.result === true) {
-                      // If web UI does exist
-                      console.log('UI exists, opening...')
-                      window.open(openUrl, '_blank', 'noopener noreferrer')
-                      setIsCallingApi(false)
-                    } else {
-                      // Other HTTP errors
-                      console.error(
-                        `Unexpected response status: ${res.status}`
-                      )
-                      setIsCallingApi(false)
-                    }
+                        setIsCallingApi(false)
+                      }
+                    })
                   })
-                })
                   .catch((error) => {
                     console.error('Error:', error)
                     setIsCallingApi(false)
