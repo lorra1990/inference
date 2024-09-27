@@ -224,6 +224,11 @@ class RESTfulAPI:
         self._router = APIRouter()
         self._app = FastAPI()
 
+        # hack gradio
+        from .utils import get_root_url
+
+        gr.routes.route_utils.get_root_url = get_root_url
+
     def is_authenticated(self):
         return False if self._auth_service.config is None else True
 
@@ -738,6 +743,17 @@ class RESTfulAPI:
             "/v1/clusters",
             self.abort_cluster,
             methods=["DELETE"],
+            dependencies=(
+                [Security(self._auth_service, scopes=["admin"])]
+                if self.is_authenticated()
+                else None
+            ),
+        )
+
+        self._router.add_api_route(
+            "/v1/router",
+            self.get_route,
+            methods=["GET"],
             dependencies=(
                 [Security(self._auth_service, scopes=["admin"])]
                 if self.is_authenticated()
@@ -2145,6 +2161,23 @@ class RESTfulAPI:
         try:
             res = await (await self._get_supervisor_ref()).abort_cluster()
             os.kill(os.getpid(), signal.SIGINT)
+            return JSONResponse(content={"result": res})
+        except ValueError as re:
+            logger.error(re, exc_info=True)
+            raise HTTPException(status_code=400, detail=str(re))
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            raise HTTPException(status_code=500, detail=str(e))
+
+    async def get_route(self, route_str=Query("")) -> JSONResponse:
+        try:
+            res = False
+            logger.info(f"{self._app.routes}")
+            for route in self._app.routes:
+                if route.path == route_str:
+                    res = True
+                    break
+
             return JSONResponse(content={"result": res})
         except ValueError as re:
             logger.error(re, exc_info=True)
