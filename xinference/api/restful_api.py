@@ -52,7 +52,11 @@ from xoscar.utils import get_next_port
 
 from .._compat import BaseModel, Field
 from .._version import get_versions
-from ..constants import XINFERENCE_DEFAULT_ENDPOINT_PORT, XINFERENCE_DISABLE_METRICS
+from ..constants import (
+    XINFERENCE_DEFAULT_ENDPOINT_PORT,
+    XINFERENCE_DISABLE_METRICS,
+    XINFERENCE_ENV_GRADIO_ENDPOINT,
+)
 from ..core.event import Event, EventCollectorActor, EventType
 from ..core.supervisor import SupervisorActor
 from ..core.utils import json_dumps
@@ -1094,7 +1098,11 @@ class RESTfulAPI:
 
         try:
             access_token = request.headers.get("Authorization")
-            internal_host = "localhost" if self._host == "0.0.0.0" else self._host
+            internal_host = (
+                os.environ.get(XINFERENCE_ENV_GRADIO_ENDPOINT, None) or "localhost"
+                if self._host == "0.0.0.0"
+                else self._host
+            )
             interface = GradioInterface(
                 endpoint=f"http://{internal_host}:{self._port}",
                 model_uid=model_uid,
@@ -1147,7 +1155,11 @@ class RESTfulAPI:
 
         try:
             access_token = request.headers.get("Authorization")
-            internal_host = "localhost" if self._host == "0.0.0.0" else self._host
+            internal_host = (
+                os.environ.get(XINFERENCE_ENV_GRADIO_ENDPOINT, None) or "localhost"
+                if self._host == "0.0.0.0"
+                else self._host
+            )
             interface = ImageInterface(
                 endpoint=f"http://{internal_host}:{self._port}",
                 model_uid=model_uid,
