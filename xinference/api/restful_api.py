@@ -52,11 +52,7 @@ from xoscar.utils import get_next_port
 
 from .._compat import BaseModel, Field
 from .._version import get_versions
-from ..constants import (
-    XINFERENCE_DEFAULT_ENDPOINT_PORT,
-    XINFERENCE_DISABLE_METRICS,
-    XINFERENCE_ENV_GRADIO_ENDPOINT,
-)
+from ..constants import XINFERENCE_DEFAULT_ENDPOINT_PORT, XINFERENCE_DISABLE_METRICS
 from ..core.event import Event, EventCollectorActor, EventType
 from ..core.supervisor import SupervisorActor
 from ..core.utils import json_dumps
@@ -198,6 +194,7 @@ class BuildGradioInterfaceRequest(BaseModel):
     model_ability: List[str]
     model_description: str
     model_lang: List[str]
+    endpoint: Optional[str] = None
 
 
 class BuildGradioImageInterfaceRequest(BaseModel):
@@ -208,6 +205,7 @@ class BuildGradioImageInterfaceRequest(BaseModel):
     controlnet: Union[None, List[Dict[str, Union[str, dict, None]]]]
     model_revision: str
     model_ability: List[str]
+    endpoint: Optional[str] = None
 
 
 class RESTfulAPI:
@@ -1099,8 +1097,7 @@ class RESTfulAPI:
         try:
             access_token = request.headers.get("Authorization")
             endpoint = (
-                os.environ.get(XINFERENCE_ENV_GRADIO_ENDPOINT, None)
-                or f"http://localhost:{self._port}"
+                body.endpoint or f"http://localhost:{self._port}"
                 if self._host == "0.0.0.0"
                 else f"http://{self._host}:{self._port}"
             )
@@ -1157,8 +1154,7 @@ class RESTfulAPI:
         try:
             access_token = request.headers.get("Authorization")
             endpoint = (
-                os.environ.get(XINFERENCE_ENV_GRADIO_ENDPOINT, None)
-                or f"http://localhost:{self._port}"
+                body.endpoint or f"http://localhost:{self._port}"
                 if self._host == "0.0.0.0"
                 else f"http://{self._host}:{self._port}"
             )
