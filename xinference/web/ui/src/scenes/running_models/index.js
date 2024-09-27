@@ -176,6 +176,7 @@ const RunningModels = () => {
         const openUrl = `${endPoint}/` + url
         const closeUrl = `${endPoint}/v1/models/` + url
         const gradioUrl = `${endPoint}/v1/ui/` + url
+        const checkUrl = `${endPoint}/v1/router?route_str=/`+url
 
         if (url === 'IS_LOADING') {
           return <div></div>
@@ -205,48 +206,52 @@ const RunningModels = () => {
                 }
 
                 setIsCallingApi(true)
-
-                fetcher(openUrl, {
-                  method: 'HEAD',
+                fetcher(checkUrl, {
+                  method: 'GET',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  }
                 })
-                  .then((response) => {
-                    if (response.status === 404) {
-                      // If web UI doesn't exist (404 Not Found)
-                      console.log('UI does not exist, creating new...')
-                      return fetcher(gradioUrl, {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                          model_type: row.model_type,
-                          model_name: row.model_family,
-                          model_size_in_billions: row.model_size_in_billions,
-                          model_format: row.model_format,
-                          quantization: row.quantization,
-                          context_length: row.context_length,
-                          model_ability: row.model_ability,
-                          model_description: row.model_description,
-                          model_lang: row.model_lang,
-                        }),
-                      })
-                        .then((response) => response.json())
-                        .then(() =>
-                          window.open(openUrl, '_blank', 'noopener noreferrer')
+                  .then((res) => {
+                    res.json().then((data) => {
+                      if (data.result === false) {
+                        // If web UI doesn't exist (404 Not Found)
+                        console.log('UI does not exist, creating new...')
+                        return fetcher(gradioUrl, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            model_type: row.model_type,
+                            model_name: row.model_family,
+                            model_size_in_billions: row.model_size_in_billions,
+                            model_format: row.model_format,
+                            quantization: row.quantization,
+                            context_length: row.context_length,
+                            model_ability: row.model_ability,
+                            model_description: row.model_description,
+                            model_lang: row.model_lang,
+                          }),
+                        })
+                          .then((response) => response.json())
+                          .then(() =>
+                            window.open(openUrl, '_blank', 'noopener noreferrer')
+                          )
+                          .finally(() => setIsCallingApi(false))
+                      } else if (data.result === true) {
+                        // If web UI does exist
+                        console.log('UI exists, opening...')
+                        window.open(openUrl, '_blank', 'noopener noreferrer')
+                        setIsCallingApi(false)
+                      } else {
+                        // Other HTTP errors
+                        console.error(
+                          `Unexpected response status: ${res.status}`
                         )
-                        .finally(() => setIsCallingApi(false))
-                    } else if (response.ok) {
-                      // If web UI does exist
-                      console.log('UI exists, opening...')
-                      window.open(openUrl, '_blank', 'noopener noreferrer')
-                      setIsCallingApi(false)
-                    } else {
-                      // Other HTTP errors
-                      console.error(
-                        `Unexpected response status: ${response.status}`
-                      )
-                      setIsCallingApi(false)
-                    }
+                        setIsCallingApi(false)
+                      }
+                    })
                   })
                   .catch((error) => {
                     console.error('Error:', error)
@@ -458,6 +463,7 @@ const RunningModels = () => {
         const openUrl = `${endPoint}/` + url
         const closeUrl = `${endPoint}/v1/models/` + url
         const gradioUrl = `${endPoint}/v1/ui/images/` + url
+        const checkUrl = `${endPoint}/v1/router?route_str=/`+url
 
         if (url === 'IS_LOADING') {
           return <div></div>
@@ -488,11 +494,15 @@ const RunningModels = () => {
 
                 setIsCallingApi(true)
 
-                fetcher(openUrl, {
-                  method: 'HEAD',
+                fetcher(checkUrl, {
+                  method: 'GET',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  }
                 })
-                  .then((response) => {
-                    if (response.status === 404) {
+                  .then((res) => {
+                    res.json().then((data) => {
+                      if (data.result === false) {
                       // If web UI doesn't exist (404 Not Found)
                       console.log('UI does not exist, creating new...')
                       return fetcher(gradioUrl, {
@@ -515,7 +525,7 @@ const RunningModels = () => {
                           window.open(openUrl, '_blank', 'noopener noreferrer')
                         )
                         .finally(() => setIsCallingApi(false))
-                    } else if (response.ok) {
+                    } else if (data.result === true) {
                       // If web UI does exist
                       console.log('UI exists, opening...')
                       window.open(openUrl, '_blank', 'noopener noreferrer')
@@ -523,11 +533,12 @@ const RunningModels = () => {
                     } else {
                       // Other HTTP errors
                       console.error(
-                        `Unexpected response status: ${response.status}`
+                        `Unexpected response status: ${res.status}`
                       )
                       setIsCallingApi(false)
                     }
                   })
+                })
                   .catch((error) => {
                     console.error('Error:', error)
                     setIsCallingApi(false)
