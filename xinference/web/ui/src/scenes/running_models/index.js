@@ -232,7 +232,7 @@ const RunningModels = () => {
                             model_ability: row.model_ability,
                             model_description: row.model_description,
                             model_lang: row.model_lang,
-                            endpoint: endPoint
+                            endpoint: endPoint,
                           }),
                         })
                           .then((response) => response.json())
@@ -523,7 +523,7 @@ const RunningModels = () => {
                             model_revision: row.model_revision,
                             model_name: row.model_name,
                             model_ability: row.model_ability,
-                            endpoint: endPoint
+                            endpoint: endPoint,
                           }),
                         })
                           .then((response) => response.json())
