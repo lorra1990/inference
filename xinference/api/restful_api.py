@@ -194,6 +194,7 @@ class BuildGradioInterfaceRequest(BaseModel):
     model_ability: List[str]
     model_description: str
     model_lang: List[str]
+    endpoint: Optional[str] = None
 
 
 class BuildGradioImageInterfaceRequest(BaseModel):
@@ -204,6 +205,7 @@ class BuildGradioImageInterfaceRequest(BaseModel):
     controlnet: Union[None, List[Dict[str, Union[str, dict, None]]]]
     model_revision: str
     model_ability: List[str]
+    endpoint: Optional[str] = None
 
 
 class RESTfulAPI:
@@ -1094,9 +1096,13 @@ class RESTfulAPI:
 
         try:
             access_token = request.headers.get("Authorization")
-            internal_host = "localhost" if self._host == "0.0.0.0" else self._host
+            endpoint = (
+                body.endpoint or f"http://localhost:{self._port}"
+                if self._host == "0.0.0.0"
+                else f"http://{self._host}:{self._port}"
+            )
             interface = GradioInterface(
-                endpoint=f"http://{internal_host}:{self._port}",
+                endpoint=endpoint,
                 model_uid=model_uid,
                 model_name=body.model_name,
                 model_size_in_billions=body.model_size_in_billions,
@@ -1147,9 +1153,13 @@ class RESTfulAPI:
 
         try:
             access_token = request.headers.get("Authorization")
-            internal_host = "localhost" if self._host == "0.0.0.0" else self._host
+            endpoint = (
+                body.endpoint or f"http://localhost:{self._port}"
+                if self._host == "0.0.0.0"
+                else f"http://{self._host}:{self._port}"
+            )
             interface = ImageInterface(
-                endpoint=f"http://{internal_host}:{self._port}",
+                endpoint=endpoint,
                 model_uid=model_uid,
                 model_family=body.model_family,
                 model_name=body.model_name,
