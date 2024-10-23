@@ -237,11 +237,13 @@ const RunningModels = () => {
                         })
                           .then((response) => response.json())
                           .then(() =>
-                            window.open(
-                              openUrl,
-                              '_blank',
-                              'noopener noreferrer'
-                            )
+                            setTimeout(() =>{
+                              window.open(
+                                openUrl,
+                                '_blank',
+                                'noopener noreferrer'
+                              )
+                            }, 800)
                           )
                           .finally(() => setIsCallingApi(false))
                       } else if (data.result === true) {
@@ -528,11 +530,13 @@ const RunningModels = () => {
                         })
                           .then((response) => response.json())
                           .then(() =>
-                            window.open(
-                              openUrl,
-                              '_blank',
-                              'noopener noreferrer'
-                            )
+                            setTimeout(() =>{
+                              window.open(
+                                openUrl,
+                                '_blank',
+                                'noopener noreferrer'
+                              )
+                            }, 800)
                           )
                           .finally(() => setIsCallingApi(false))
                       } else if (data.result === true) {
